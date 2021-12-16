@@ -3,8 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package view;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Vector;
+import javax.swing.table.DefaultTableModel;
+import model.StudentDAO;
 
 /**
  *
@@ -12,11 +18,37 @@ package view;
  */
 public class JStudent extends javax.swing.JFrame {
 
+    StudentDAO dao = new StudentDAO();
+
     /**
      * Creates new form JStudent
      */
     public JStudent() {
         initComponents();
+        loadTable();
+    }
+
+    public void loadTable() {
+        DefaultTableModel df = (DefaultTableModel) tbStudent.getModel();
+        df.setRowCount(0);
+        Connection con = null;
+        PreparedStatement stmt = null;
+        try {
+            con = StudentDAO.getConnect();
+            stmt = con.prepareStatement("select * from HocVien as hv inner join tinh on hv.tinh = tinh.matinh");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Vector x = new Vector();
+                x.add(rs.getString(0));
+                x.add(rs.getString(2));
+                x.add(rs.getString(6));
+                x.add(rs.getString(1));
+                df.addRow(x);
+                System.out.println(rs.getString("MAHOCVIEN"));
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
