@@ -36,13 +36,10 @@ public class StudentDAO {
         return null;
     }
 
-    public void addStudent(Student x) {
-        Connection con = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+    public int addStudent(Student x) {
         try {
-            con = StudentDAO.getConnect();
-            stmt = con.prepareStatement("insert into Hocvien values(?,?,?,?,?)");
+            Connection con = StudentDAO.getConnect();
+            PreparedStatement stmt = con.prepareStatement("insert into Hocvien values(?,?,?,?,?)");
             stmt.setString(1, x.getId());
             stmt.setString(2, x.getEmail());
             stmt.setString(3, x.getName());
@@ -55,13 +52,30 @@ public class StudentDAO {
             stmt.executeUpdate();
             con.close();
             stmt.close();
-            rs.close();
+            return 1;
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        return -1;
+    }
+
+    public int removeStudent(String id) {
+        try {
+            Connection con = StudentDAO.getConnect();
+            PreparedStatement stmt = con.prepareStatement("delete from Hocvien where Hocvien.MAHOCVIEN =? ");
+            stmt.setString(1, id);
+            stmt.executeUpdate();
+            con.close();
+            stmt.close();
+            return 1;
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        return -1;
     }
 //    public static void main(String[] args) {
 //        StudentDAO dao = new StudentDAO();
-//        dao.addStudent(new Student("hv110", "Tran Dat", "emal", "Nam", "HT"));
+////        Student x = new Student("hv013", "Tran Dat", "emal", "Nam", 4);
+//        
 //    }
 }

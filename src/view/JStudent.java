@@ -44,11 +44,9 @@ public class JStudent extends javax.swing.JFrame {
                 Vector x = new Vector();
                 x.add(rs.getString(1));
                 x.add(rs.getString(3));
-                if(rs.getBoolean(5)== true)
-                {
+                if (rs.getBoolean(5) == true) {
                     x.add(new String("Nam"));
-                }else
-                {
+                } else {
                     x.add(new String("Nữ"));
                 }
                 x.add(rs.getString(7));
@@ -59,8 +57,8 @@ public class JStudent extends javax.swing.JFrame {
             System.out.println("ERROR :" + e.toString());
         }
     }
-    public void load_City_to_cbx()
-    {
+
+    public void load_City_to_cbx() {
         Connection con = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -68,8 +66,7 @@ public class JStudent extends javax.swing.JFrame {
             con = StudentDAO.getConnect();
             stmt = con.prepareStatement("select tentinh from tinh");
             rs = stmt.executeQuery();
-            while(rs.next())
-            {
+            while (rs.next()) {
                 String x = rs.getString(1);
                 cbxCity.addItem(x);
             }
@@ -80,7 +77,40 @@ public class JStudent extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, e.toString());
         }
     }
-  
+
+    public void load_Student_from_table() {
+        DefaultTableModel df = (DefaultTableModel) tbStudent.getModel();
+        int row = tbStudent.getSelectedRow();
+        String id = String.valueOf(df.getValueAt(row, 0));
+        String name = String.valueOf(df.getValueAt(row, 1));
+        String sex = String.valueOf(df.getValueAt(row, 2));
+        String city = String.valueOf(df.getValueAt(row, 3));
+        String email = String.valueOf(df.getValueAt(row, 4));
+        txtMa.setText(id);
+        txtName.setText(name);
+        txtEmail.setText(email);
+        if (sex.equals("Nam")) {
+            rdNam.setSelected(true);
+        } else {
+            rdNu.setSelected(false);
+        }
+    }
+
+    public void reset_fill() {
+        txtMa.setText("");
+        txtName.setText("");
+        txtEmail.setText("");
+        rdNam.setSelected(true);
+        cbxCity.setSelectedIndex(0);
+    }
+
+    public boolean validateForm() {
+        if (txtMa.getText().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -159,9 +189,19 @@ public class JStudent extends javax.swing.JFrame {
 
         btnRemove.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnRemove.setText("XÓA");
+        btnRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoveActionPerformed(evt);
+            }
+        });
 
         btnExit.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnExit.setText("THOÁT");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel9.setText("DANH SÁCH");
@@ -180,6 +220,11 @@ public class JStudent extends javax.swing.JFrame {
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+        });
+        tbStudent.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbStudentMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tbStudent);
@@ -294,28 +339,63 @@ public class JStudent extends javax.swing.JFrame {
     private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtEmailActionPerformed
-    public Student getStudentfromForm()
-    {
-        Student x=new Student();
+    public Student getStudentfromForm() {
+        Student x = new Student();
         x.setId(txtMa.getText());
         x.setName(txtName.getText());
         x.setEmail(txtEmail.getText());
         x.setCity(cbxCity.getSelectedIndex());
-        if(rdNam.isSelected())
-        {
+        if (rdNam.isSelected()) {
             x.setSex("Nam");
-        }else
-        {
+        } else {
             x.setSex("Nữ");
         }
         return x;
     }
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
-        Student x = getStudentfromForm();
-        dao.addStudent(x);
-        loadTable();
+        if (validateForm()) {
+            Student x = getStudentfromForm();
+            if (dao.addStudent(x) > 0) {
+                JOptionPane.showMessageDialog(null, "Them Thanh Cong !");
+                loadTable();
+                reset_fill();
+            } else {
+                JOptionPane.showMessageDialog(null, "Them That Bai !");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Ban phai nhap du thong tin !");
+        }
+
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void tbStudentMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbStudentMouseClicked
+        // TODO add your handling code here:
+        load_Student_from_table();
+    }//GEN-LAST:event_tbStudentMouseClicked
+
+    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
+        // TODO add your handling code here:
+        if (validateForm()) {
+            if (dao.removeStudent(txtMa.getText()) > 0) {
+                JOptionPane.showMessageDialog(null, "Xoa Thanh Cong !");
+                loadTable();
+                reset_fill();
+            } else {
+                JOptionPane.showMessageDialog(null, "Xoa That Bai !");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Ban phai nhap du thong tin !");
+        }
+    }//GEN-LAST:event_btnRemoveActionPerformed
+
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        // TODO add your handling code here:
+        int luachon = JOptionPane.showConfirmDialog(null, "Ban muon thoat ?", null, JOptionPane.YES_NO_OPTION);
+        if (luachon == 0) {
+            System.exit(0);
+        }
+    }//GEN-LAST:event_btnExitActionPerformed
 
     /**
      * @param args the command line arguments
