@@ -46,7 +46,7 @@ public class StudentDAO {
             stmt.setString(1, x.getId());
             stmt.setString(2, x.getEmail());
             stmt.setString(3, x.getName());
-            stmt.setString(4, x.getCity());
+            stmt.setInt(4, x.getCity());
             if (x.getSex().equalsIgnoreCase("Nam")) {
                 stmt.setBoolean(5, true);
             } else {

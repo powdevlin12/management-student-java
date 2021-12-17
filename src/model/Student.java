@@ -15,9 +15,9 @@ public class Student {
     private String name;
     private String email;
     private String sex;
-    private String city;
+    private int city;
 
-    public Student(String id, String name, String email, String sex, String city) {
+    public Student(String id, String name, String email, String sex, int city) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -60,11 +60,11 @@ public class Student {
         this.sex = sex;
     }
 
-    public String getCity() {
+    public int getCity() {
         return city;
     }
 
-    public void setCity(String city) {
+    public void setCity(int city) {
         this.city = city;
     }
     

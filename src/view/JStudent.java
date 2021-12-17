@@ -300,18 +300,7 @@ public class JStudent extends javax.swing.JFrame {
         x.setId(txtMa.getText());
         x.setName(txtName.getText());
         x.setEmail(txtEmail.getText());
-        String idTinh="";
-        JOptionPane.showMessageDialog(null,cbxCity.getSelectedIndex() );
-        try {
-            Connection con = StudentDAO.getConnect();
-            PreparedStatement stmt = con.prepareStatement("Select matinh from tinh where tentinh=?");
-            stmt.setInt(1,cbxCity.getSelectedIndex());
-            ResultSet rs = stmt.executeQuery();
-            idTinh = rs.getString(1);
-        } catch (Exception e) {
-            System.out.println("error"+e.getMessage());
-        }
-        x.setCity(idTinh);
+        x.setCity(cbxCity.getSelectedIndex());
         if(rdNam.isSelected())
         {
             x.setSex("Nam");
