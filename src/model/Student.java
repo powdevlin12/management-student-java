@@ -14,10 +14,10 @@ public class Student {
     private String id;
     private String name;
     private String email;
-    private boolean sex;
+    private String sex;
     private String city;
 
-    public Student(String id, String name, String email, boolean sex, String city) {
+    public Student(String id, String name, String email, String sex, String city) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -52,11 +52,11 @@ public class Student {
         this.email = email;
     }
 
-    public boolean isSex() {
+    public String getSex() {
         return sex;
     }
 
-    public void setSex(boolean sex) {
+    public void setSex(String sex) {
         this.sex = sex;
     }
 

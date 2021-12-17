@@ -9,7 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Vector;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import model.Student;
 import model.StudentDAO;
 
 /**
@@ -26,31 +28,59 @@ public class JStudent extends javax.swing.JFrame {
     public JStudent() {
         initComponents();
         loadTable();
+        load_City_to_cbx();
     }
 
     public void loadTable() {
-        DefaultTableModel df = (DefaultTableModel) tbStudent.getModel();
-        df.setRowCount(0);
         Connection con = null;
         PreparedStatement stmt = null;
         try {
             con = StudentDAO.getConnect();
             stmt = con.prepareStatement("select * from HocVien as hv inner join tinh on hv.tinh = tinh.matinh");
             ResultSet rs = stmt.executeQuery();
+            DefaultTableModel df = (DefaultTableModel) tbStudent.getModel();
+            df.setRowCount(0);
             while (rs.next()) {
                 Vector x = new Vector();
-                x.add(rs.getString(0));
-                x.add(rs.getString(2));
-                x.add(rs.getString(6));
                 x.add(rs.getString(1));
+                x.add(rs.getString(3));
+                if(rs.getBoolean(5)== true)
+                {
+                    x.add(new String("Nam"));
+                }else
+                {
+                    x.add(new String("Nữ"));
+                }
+                x.add(rs.getString(7));
+                x.add(rs.getString(2));
                 df.addRow(x);
-                System.out.println(rs.getString("MAHOCVIEN"));
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("ERROR :" + e.toString());
         }
     }
-
+    public void load_City_to_cbx()
+    {
+        Connection con = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            con = StudentDAO.getConnect();
+            stmt = con.prepareStatement("select tentinh from tinh");
+            rs = stmt.executeQuery();
+            while(rs.next())
+            {
+                String x = rs.getString(1);
+                cbxCity.addItem(x);
+            }
+            con.close();
+            stmt.close();
+            rs.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.toString());
+        }
+    }
+  
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -88,6 +118,7 @@ public class JStudent extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 102, 51));
         jLabel1.setText("DANH SÁCH HỌC VIÊN");
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel2.setText("THÔNG TIN");
 
         jLabel3.setText("Mã HV");
@@ -115,10 +146,16 @@ public class JStudent extends javax.swing.JFrame {
         buttonGroup1.add(rdNu);
         rdNu.setText("Nữ");
 
+        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel8.setText("CHỨC NĂNG");
 
         btnSave.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnSave.setText("LƯU");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         btnRemove.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnRemove.setText("XÓA");
@@ -126,6 +163,7 @@ public class JStudent extends javax.swing.JFrame {
         btnExit.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnExit.setText("THOÁT");
 
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel9.setText("DANH SÁCH");
 
         tbStudent.setModel(new javax.swing.table.DefaultTableModel(
@@ -137,7 +175,7 @@ public class JStudent extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -247,7 +285,7 @@ public class JStudent extends javax.swing.JFrame {
                 .addComponent(jLabel9)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         pack();
@@ -256,6 +294,39 @@ public class JStudent extends javax.swing.JFrame {
     private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtEmailActionPerformed
+    public Student getStudentfromForm()
+    {
+        Student x=new Student();
+        x.setId(txtMa.getText());
+        x.setName(txtName.getText());
+        x.setEmail(txtEmail.getText());
+        String idTinh="";
+        JOptionPane.showMessageDialog(null,cbxCity.getSelectedIndex() );
+        try {
+            Connection con = StudentDAO.getConnect();
+            PreparedStatement stmt = con.prepareStatement("Select matinh from tinh where tentinh=?");
+            stmt.setInt(1,cbxCity.getSelectedIndex());
+            ResultSet rs = stmt.executeQuery();
+            idTinh = rs.getString(1);
+        } catch (Exception e) {
+            System.out.println("error"+e.getMessage());
+        }
+        x.setCity(idTinh);
+        if(rdNam.isSelected())
+        {
+            x.setSex("Nam");
+        }else
+        {
+            x.setSex("Nữ");
+        }
+        return x;
+    }
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        Student x = getStudentfromForm();
+        dao.addStudent(x);
+        loadTable();
+    }//GEN-LAST:event_btnSaveActionPerformed
 
     /**
      * @param args the command line arguments
@@ -287,7 +358,9 @@ public class JStudent extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new JStudent().setVisible(true);
+                JStudent main = new JStudent();
+                main.setVisible(true);
+                main.setLocationRelativeTo(null);
             }
         });
     }
